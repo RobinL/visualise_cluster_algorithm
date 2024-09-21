@@ -23,11 +23,14 @@ class ForceDirectedGraph {
     }
 
     render() {
-        // Use the nodes from the current iteration
-        this.nodes = this.nodes_at_iterations[this.currentIteration];
-
+        // Initialize nodes from the first iteration
         // Create a map from node IDs to node objects
-        const nodeById = new Map(this.nodes.map(d => [d.id, d]));
+        const nodeById = new Map();
+        this.nodes = this.nodes_at_iterations[0].map(d => {
+            const node = { id: d.id, cluster: d.cluster };
+            nodeById.set(d.id, node);
+            return node;
+        });
 
         // Replace source and target IDs with node objects
         this.links = this.linksData.map(l => ({
@@ -81,7 +84,7 @@ class ForceDirectedGraph {
         this.simulation.alpha(1).restart();
 
         this.simulation.on('end', () => {
-            // Fix the positions to prevent re-layout
+            // Fix node positions to prevent re-layout
             this.nodes.forEach(d => {
                 d.fx = d.x;
                 d.fy = d.y;
@@ -98,7 +101,6 @@ class ForceDirectedGraph {
 
     // Update clusters and recolor nodes and edges
     updateClusters() {
-        // Update the nodes with the clusters from the current iteration
         const currentNodes = this.nodes_at_iterations[this.currentIteration];
 
         // Update cluster assignments in nodes
@@ -161,6 +163,15 @@ const nodes_at_iterations = [
         { id: "C", cluster: "A" },
         { id: "D", cluster: "D" },
         { id: "E", cluster: "E" },
+        { id: "F", cluster: "G" },
+        { id: "G", cluster: "G" },
+    ],
+    [
+        { id: "A", cluster: "A" },
+        { id: "B", cluster: "A" },
+        { id: "C", cluster: "A" },
+        { id: "D", cluster: "A" },
+        { id: "E", cluster: "G" },
         { id: "F", cluster: "G" },
         { id: "G", cluster: "G" },
     ],
