@@ -79,9 +79,10 @@ class ForceDirectedGraph {
             .attr("height", 600);
 
         this.simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(d => d.id))
-            .force("charge", d3.forceManyBody())
-            .force("center", d3.forceCenter(400, 300));
+            .force("link", d3.forceLink().id(d => d.id).distance(20))
+            .force("charge", d3.forceManyBody().strength(-50))
+            .force("center", d3.forceCenter(400, 300))
+            .force("collision", d3.forceCollide().radius(20));
 
         this.currentIteration = 0;
         this.showClusterLabels = false; // Initialize cluster labels as hidden
