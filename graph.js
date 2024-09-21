@@ -26,13 +26,15 @@ function solveConnectedComponents(nodes, edges) {
         representatives[node.id] = node.id;
     });
 
+    console.table(Object.entries(representatives).map(([id, rep]) => ({ node_id: id, representative: rep })));
+    console.log("----------");
+
     const nodesAtIterations = [renamedNodes.map(node => ({ id: node.id, cluster: representatives[node.id] }))];
     let changes = 1;
     let iteration = 0;
 
     while (changes > 0) {
         iteration += 1;
-        console.log("----------");
         console.log(`Iteration ${iteration}`);
 
         let newRepresentatives = { ...representatives };
@@ -52,9 +54,13 @@ function solveConnectedComponents(nodes, edges) {
             }
         });
 
-        console.table(newRepresentatives);
+        console.log("Updated representatives:");
+        console.table(Object.entries(newRepresentatives).map(([id, rep]) => ({ node_id: id, representative: rep })));
 
         representatives = newRepresentatives;
+
+        console.log(`Iteration ${iteration}: Number of nodes with changed representative: ${changes}`);
+        console.log("----------");
 
         nodesAtIterations.push(renamedNodes.map(node => ({
             id: node.id,
@@ -312,7 +318,7 @@ const initialNodes = [
     { id: "E", cluster: "E" },
     { id: "T", cluster: "T" },
     { id: "L", cluster: "L" },
-    { id: "AA", cluster: "AA" },
+
 ];
 
 const initialLinks = [
@@ -323,14 +329,14 @@ const initialLinks = [
     { source: "G", target: "E" },
     { source: "E", target: "T" },
     { source: "T", target: "L" },
-    { source: "L", target: "AA" },
+
 ];
 
 
 
 // Solve connected components
 const initialNodesAtIterations = solveConnectedComponents(initialNodes, initialLinks);
-debugger;
+
 // Set data and iterations to graph
 graph.setData(initialLinks);
 graph.setIterations(initialNodesAtIterations);

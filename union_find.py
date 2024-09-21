@@ -14,7 +14,6 @@ nodes = [
     {"id": "E"},
     {"id": "T"},
     {"id": "L"},
-    {"id": "AA"},
 ]
 edges = [
     {"source": "C", "target": "J"},
@@ -24,7 +23,6 @@ edges = [
     {"source": "G", "target": "E"},
     {"source": "E", "target": "T"},
     {"source": "T", "target": "L"},
-    {"source": "L", "target": "AA"},
 ]
 
 
