@@ -100,6 +100,10 @@
 
     <h1>Visualising Solving Connected Components in SQL</h1>
     <h4 style="text-align: center;">See JavaScript console for nodes and representatives tables</h4>
+
+
+
+
     <div id="graph"></div>
     <div id="controls">
         <div class="input-group">
@@ -119,7 +123,9 @@
     <script src="connected_components.js"></script>
     <script src="graph.js"></script>
     <a href="https://robinlinacre.com" class="return-link">Return to robinlinacre.com</a>
-
+    <p style="text-align: center; max-width: 600px; margin: 0 auto 20px;">
+        At each iteration, each node 'looks' at every node it's joined to. If any of those nodes are represented by a smaller node, that becomes the new representative.
+    </p>
     <details>
         <summary>Python Code</summary>
         <pre><code class="language-python">
