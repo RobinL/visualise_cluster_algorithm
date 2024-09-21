@@ -1,43 +1,70 @@
-function solveConnectedComponents(nodes, links) {
-    // Build adjacency list
-    const adjacency = {};
-    nodes.forEach(node => {
-        adjacency[node.id] = new Set();
-    });
-    links.forEach(link => {
-        adjacency[link.source].add(link.target);
-        adjacency[link.target].add(link.source);
+function solveConnectedComponents(nodes, edges) {
+    const renamedNodes = nodes.map(node => ({ id: node.id }));
+    const renamedEdges = edges.map(edge => ({
+        source: edge.source,
+        target: edge.target
+    }));
+
+    const neighbours = {};
+    renamedNodes.forEach(node => {
+        neighbours[node.id] = new Set();
     });
 
-    // Initialize clusters
-    let clusters = {};
-    nodes.forEach(node => {
-        clusters[node.id] = node.id;
+    renamedEdges.forEach(edge => {
+        if (edge.source !== edge.target) {
+            neighbours[edge.source].add(edge.target);
+            neighbours[edge.target].add(edge.source);
+        }
     });
 
-    const nodesAtIterations = [nodes.map(node => ({ id: node.id, cluster: node.cluster }))];
+    renamedNodes.forEach(node => {
+        neighbours[node.id].add(node.id);
+    });
+
+    let representatives = {};
+    renamedNodes.forEach(node => {
+        representatives[node.id] = node.id;
+    });
+
+    const nodesAtIterations = [renamedNodes.map(node => ({ id: node.id, cluster: representatives[node.id] }))];
     let changes = 1;
+    let iteration = 0;
 
     while (changes > 0) {
-        changes = 0;
-        const newClusters = { ...clusters };
+        iteration += 1;
+        console.log("----------");
+        console.log(`Iteration ${iteration}`);
 
-        nodes.forEach(node => {
-            const neighborClusters = Array.from(adjacency[node.id]).map(neighbor => clusters[neighbor]);
-            const minCluster = [clusters[node.id], ...neighborClusters].reduce((a, b) => (a < b ? a : b));
-            if (minCluster !== clusters[node.id]) {
-                newClusters[node.id] = minCluster;
+        let newRepresentatives = { ...representatives };
+        changes = 0;
+
+        renamedNodes.forEach(node => {
+            const nodeId = node.id;
+            const neighborIds = Array.from(neighbours[nodeId]);
+            const minRepresentative = neighborIds.reduce((minRep, neighborId) => {
+                const neighborRep = representatives[neighborId];
+                return neighborRep < minRep ? neighborRep : minRep;
+            }, representatives[nodeId]);
+
+            if (minRepresentative !== representatives[nodeId]) {
+                newRepresentatives[nodeId] = minRepresentative;
                 changes += 1;
             }
         });
 
-        clusters = newClusters;
+        console.table(newRepresentatives);
 
-        nodesAtIterations.push(nodes.map(node => ({ id: node.id, cluster: clusters[node.id] })));
+        representatives = newRepresentatives;
+
+        nodesAtIterations.push(renamedNodes.map(node => ({
+            id: node.id,
+            cluster: representatives[node.id]
+        })));
     }
 
     return nodesAtIterations;
 }
+
 
 class ForceDirectedGraph {
     constructor(selector) {
@@ -78,6 +105,9 @@ class ForceDirectedGraph {
         }));
 
         this.updateColorScale();
+
+        // Remove existing elements
+        this.svg.selectAll("*").remove();
 
         // Draw links
         this.link = this.svg.append("g")
@@ -215,37 +245,95 @@ class ForceDirectedGraph {
         this.labels
             .text(d => this.showClusterLabels ? `${d.id} (${d.cluster})` : d.id);
     }
+
+    // Generate a random graph based on the number of nodes and edge probability
+    generateRandomGraph(numNodes, edgeProbability) {
+        // Create nodes
+        const nodes = [];
+        for (let i = 0; i < numNodes; i++) {
+            nodes.push({ id: String.fromCharCode(65 + i), cluster: String.fromCharCode(65 + i) });
+        }
+
+        // Create edges
+        const links = [];
+        for (let i = 0; i < numNodes; i++) {
+            for (let j = i + 1; j < numNodes; j++) {
+                if (Math.random() < edgeProbability) {
+                    links.push({ source: nodes[i].id, target: nodes[j].id });
+                }
+            }
+        }
+
+        // Reset current iteration
+        this.currentIteration = 0;
+
+        // Solve connected components
+        const nodesAtIterations = solveConnectedComponents(nodes, links);
+
+        // Set data and iterations to graph
+        this.setData(links);
+        this.setIterations(nodesAtIterations);
+        this.render();
+
+        // Update the current step display
+        document.getElementById("currentStep").innerText = this.currentIteration + 1;
+    }
 }
 
 // Usage
 const graph = new ForceDirectedGraph("#graph");
 
-// Hardcoded data
-const nodes = [
-    { id: "A", cluster: "A" },
-    { id: "B", cluster: "B" },
+// Initial Hardcoded data
+// const initialNodes = [
+//     { id: "A", cluster: "A" },
+//     { id: "B", cluster: "B" },
+//     { id: "C", cluster: "C" },
+//     { id: "D", cluster: "D" },
+//     { id: "E", cluster: "E" },
+//     { id: "F", cluster: "F" },
+//     { id: "G", cluster: "G" },
+// ];
+
+// const initialLinks = [
+//     { source: "A", target: "B" },
+//     { source: "B", target: "C" },
+//     { source: "C", target: "A" },
+//     { source: "C", target: "D" },
+//     { source: "D", target: "E" },
+//     { source: "F", target: "G" },
+// ];
+
+const initialNodes = [
     { id: "C", cluster: "C" },
-    { id: "D", cluster: "D" },
-    { id: "E", cluster: "E" },
-    { id: "F", cluster: "F" },
+    { id: "J", cluster: "J" },
+    { id: "K", cluster: "K" },
     { id: "G", cluster: "G" },
+    { id: "O", cluster: "O" },
+    { id: "E", cluster: "E" },
+    { id: "T", cluster: "T" },
+    { id: "L", cluster: "L" },
+    { id: "AA", cluster: "AA" },
 ];
 
-const links = [
-    { source: "A", target: "B" },
-    { source: "B", target: "C" },
-    { source: "C", target: "A" },
-    { source: "C", target: "D" },
-    { source: "D", target: "E" },
-    { source: "F", target: "G" },
+const initialLinks = [
+    { source: "C", target: "J" },
+    { source: "J", target: "G" },
+    { source: "K", target: "G" },
+    { source: "G", target: "O" },
+    { source: "G", target: "E" },
+    { source: "E", target: "T" },
+    { source: "T", target: "L" },
+    { source: "L", target: "AA" },
 ];
+
+
 
 // Solve connected components
-const nodesAtIterations = solveConnectedComponents(nodes, links);
-
+const initialNodesAtIterations = solveConnectedComponents(initialNodes, initialLinks);
+debugger;
 // Set data and iterations to graph
-graph.setData(links);
-graph.setIterations(nodesAtIterations);
+graph.setData(initialLinks);
+graph.setIterations(initialNodesAtIterations);
 graph.render();
 
 // Event listeners for the buttons
@@ -264,4 +352,19 @@ document.getElementById("toggleCluster").addEventListener("click", () => {
     graph.toggleClusterLabels();
     const toggleButton = document.getElementById("toggleCluster");
     toggleButton.innerText = graph.showClusterLabels ? "Hide Clusters" : "Show Clusters";
+});
+
+// Generate Random Graph
+document.getElementById("generateGraphButton").addEventListener("click", () => {
+    const numNodes = parseInt(document.getElementById("numNodes").value);
+    const edgeProbability = parseFloat(document.getElementById("edgeProbability").value);
+    if (isNaN(numNodes) || numNodes < 1) {
+        alert("Please enter a valid number of nodes (minimum 1).");
+        return;
+    }
+    if (isNaN(edgeProbability) || edgeProbability < 0 || edgeProbability > 1) {
+        alert("Please enter a valid edge probability between 0 and 1.");
+        return;
+    }
+    graph.generateRandomGraph(numNodes, edgeProbability);
 });
