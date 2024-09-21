@@ -51,6 +51,7 @@ class ForceDirectedGraph {
             .force("center", d3.forceCenter(400, 300));
 
         this.currentIteration = 0;
+        this.showClusterLabels = false; // Initialize cluster labels as hidden
     }
 
     // Set the links (edges) data
@@ -106,7 +107,7 @@ class ForceDirectedGraph {
             .selectAll("text")
             .data(this.nodes)
             .join("text")
-            .text(d => `${d.id} (${d.cluster})`)
+            .text(d => this.showClusterLabels ? `${d.id} (${d.cluster})` : d.id)
             .attr("text-anchor", "middle")
             .attr("dy", ".35em")
             .attr("font-size", "10px")
@@ -170,7 +171,7 @@ class ForceDirectedGraph {
             .attr("stroke-width", d => d.source.cluster === d.target.cluster ? 2 : 1);
 
         this.labels
-            .text(d => `${d.id} (${d.cluster})`)
+            .text(d => this.showClusterLabels ? `${d.id} (${d.cluster})` : d.id)
             .attr("fill", "#000");
     }
 
@@ -207,6 +208,13 @@ class ForceDirectedGraph {
         // d.fx = null;
         // d.fy = null;
     }
+
+    // Toggle cluster label visibility
+    toggleClusterLabels() {
+        this.showClusterLabels = !this.showClusterLabels;
+        this.labels
+            .text(d => this.showClusterLabels ? `${d.id} (${d.cluster})` : d.id);
+    }
 }
 
 // Usage
@@ -229,7 +237,6 @@ const links = [
     { source: "C", target: "A" },
     { source: "C", target: "D" },
     { source: "D", target: "E" },
-
     { source: "F", target: "G" },
 ];
 
@@ -237,7 +244,6 @@ const links = [
 const nodesAtIterations = solveConnectedComponents(nodes, links);
 
 // Set data and iterations to graph
-debugger;
 graph.setData(links);
 graph.setIterations(nodesAtIterations);
 graph.render();
@@ -251,4 +257,11 @@ document.getElementById("nextStep").addEventListener("click", () => {
 document.getElementById("prevStep").addEventListener("click", () => {
     graph.prevStep();
     document.getElementById("currentStep").innerText = graph.currentIteration + 1;
+});
+
+// Toggle cluster labels
+document.getElementById("toggleCluster").addEventListener("click", () => {
+    graph.toggleClusterLabels();
+    const toggleButton = document.getElementById("toggleCluster");
+    toggleButton.innerText = graph.showClusterLabels ? "Hide Clusters" : "Show Clusters";
 });

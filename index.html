@@ -2,28 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>D3 Force-Directed Graph with Clustering Iterations</title>
+    <title>Visualising Solving Connected Components in SQL</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
 
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        #graph {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
         #controls {
-            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
+
         #controls button {
-            padding: 5px 10px;
-            margin-right: 5px;
+            padding: 10px 15px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
+
+        #controls button:hover {
+            background-color: #0056b3;
+        }
+
         #currentStep {
             font-weight: bold;
+            margin: 0 10px;
+            color: #555;
         }
     </style>
 </head>
 <body>
+    <h1>Visualising Solving Connected Components in SQL</h1>
     <div id="graph"></div>
     <div id="controls">
         <button id="prevStep">Previous</button>
         <span>Iteration: <span id="currentStep">1</span></span>
         <button id="nextStep">Next</button>
+        <button id="toggleCluster">Show Representatives (Clusters)</button>
     </div>
     <script src="graph.js"></script>
 </body>
