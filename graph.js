@@ -146,67 +146,20 @@ class ForceDirectedGraph {
 // Usage
 const graph = new ForceDirectedGraph("#graph");
 
-// Nodes at each iteration
-const nodes_at_iterations = [
-    [
-        { id: "A", cluster: "A" },
-        { id: "B", cluster: "B" },
-        { id: "C", cluster: "C" },
-        { id: "D", cluster: "D" },
-        { id: "E", cluster: "E" },
-        { id: "F", cluster: "F" },
-        { id: "G", cluster: "G" },
-    ],
-    [
-        { id: "A", cluster: "A" },
-        { id: "B", cluster: "A" },
-        { id: "C", cluster: "A" },
-        { id: "D", cluster: "D" },
-        { id: "E", cluster: "E" },
-        { id: "F", cluster: "G" },
-        { id: "G", cluster: "G" },
-    ],
-    [
-        { id: "A", cluster: "A" },
-        { id: "B", cluster: "A" },
-        { id: "C", cluster: "A" },
-        { id: "D", cluster: "A" },
-        { id: "E", cluster: "G" },
-        { id: "F", cluster: "G" },
-        { id: "G", cluster: "G" },
-    ],
-    [
-        { id: "A", cluster: "A" },
-        { id: "B", cluster: "A" },
-        { id: "C", cluster: "A" },
-        { id: "D", cluster: "A" },
-        { id: "E", cluster: "A" },
-        { id: "F", cluster: "A" },
-        { id: "G", cluster: "A" },
-    ]
-];
+// Load data from JSON file
+d3.json("data/graph_data.json").then(data => {
+    graph.setData(data.links);
+    graph.setIterations(data.nodes_at_iterations);
+    graph.render();
 
-const links = [
-    { source: "A", target: "B" },
-    { source: "B", target: "C" },
-    { source: "C", target: "A" },
-    { source: "C", target: "D" },
-    { source: "D", target: "E" },
-    { source: "E", target: "F" },
-    { source: "F", target: "G" },
-];
+    // Event listeners for the buttons
+    document.getElementById("nextStep").addEventListener("click", () => {
+        graph.nextStep();
+        document.getElementById("currentStep").innerText = graph.currentIteration + 1;
+    });
 
-graph.setData(links);
-graph.setIterations(nodes_at_iterations);
-graph.render();
-
-// Event listeners for the buttons
-document.getElementById("nextStep").addEventListener("click", () => {
-    graph.nextStep();
-    document.getElementById("currentStep").innerText = graph.currentIteration + 1;
-});
-
-document.getElementById("prevStep").addEventListener("click", () => {
-    graph.prevStep();
-    document.getElementById("currentStep").innerText = graph.currentIteration + 1;
-});
+    document.getElementById("prevStep").addEventListener("click", () => {
+        graph.prevStep();
+        document.getElementById("currentStep").innerText = graph.currentIteration + 1;
+    });
+}).catch(error => console.error("Error loading the JSON file:", error));
