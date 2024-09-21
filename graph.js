@@ -256,8 +256,8 @@ class ForceDirectedGraph {
     generateRandomGraph(numNodes, edgeProbability) {
         // Create nodes
         const nodes = [];
-        for (let i = 0; i < numNodes; i++) {
-            nodes.push({ id: String.fromCharCode(65 + i), cluster: String.fromCharCode(65 + i) });
+        for (let i = 1; i <= numNodes; i++) {
+            nodes.push({ id: i, cluster: i });
         }
 
         // Create edges
@@ -290,76 +290,73 @@ class ForceDirectedGraph {
 const graph = new ForceDirectedGraph("#graph");
 
 // Initial Hardcoded data
-// const initialNodes = [
-//     { id: "A", cluster: "A" },
-//     { id: "B", cluster: "B" },
-//     { id: "C", cluster: "C" },
-//     { id: "D", cluster: "D" },
-//     { id: "E", cluster: "E" },
-//     { id: "F", cluster: "F" },
-//     { id: "G", cluster: "G" },
-// ];
-
-// const initialLinks = [
-//     { source: "A", target: "B" },
-//     { source: "B", target: "C" },
-//     { source: "C", target: "A" },
-//     { source: "C", target: "D" },
-//     { source: "D", target: "E" },
-//     { source: "F", target: "G" },
-// ];
-
 const initialNodes = [
-    { id: "A", cluster: "A" },
-    { id: "C", cluster: "C" },
-    { id: "D", cluster: "D" },
-    { id: "E", cluster: "E" },
-    { id: "F", cluster: "F" },
-    { id: "G", cluster: "G" },
-    { id: "H", cluster: "H" },
-    { id: "I", cluster: "I" },
-    { id: "K", cluster: "K" },
-    { id: "M", cluster: "M" },
-    { id: "O", cluster: "O" },
-    { id: "P", cluster: "P" },
-    { id: "Q", cluster: "Q" },
-    { id: "R", cluster: "R" },
-    { id: "S", cluster: "S" },
-    { id: "T", cluster: "T" },
-    { id: "V", cluster: "V" },
-    { id: "W", cluster: "W" },
-    { id: "X", cluster: "X" },
-    { id: "Y", cluster: "Y" },
-    { id: "[", cluster: "[" },
-    { id: "\\", cluster: "\\" },
-    { id: "]", cluster: "]" },
-
+    { id: 1, cluster: 1 },
+    { id: 2, cluster: 2 },
+    { id: 3, cluster: 3 },
+    { id: 4, cluster: 4 },
+    { id: 5, cluster: 5 },
+    { id: 6, cluster: 6 },
+    { id: 7, cluster: 7 },
+    { id: 8, cluster: 8 },
+    { id: 9, cluster: 9 },
+    { id: 10, cluster: 10 },
+    { id: 11, cluster: 11 },
+    { id: 12, cluster: 12 },
+    { id: 13, cluster: 13 },
+    { id: 14, cluster: 14 },
+    { id: 15, cluster: 15 },
+    { id: 16, cluster: 16 },
+    { id: 17, cluster: 17 },
+    { id: 18, cluster: 18 },
+    { id: 19, cluster: 19 },
+    { id: 20, cluster: 20 },
+    { id: 21, cluster: 21 },
+    { id: 22, cluster: 22 },
+    { id: 23, cluster: 23 },
+    { id: 24, cluster: 24 },
+    { id: 25, cluster: 25 },
+    { id: 26, cluster: 26 },
+    { id: 27, cluster: 27 },
+    { id: 28, cluster: 28 },
+    { id: 29, cluster: 29 },
+    { id: 30, cluster: 30 },
 ];
 
 const initialLinks = [
-    { source: "A", target: "Q" },
-    { source: "A", target: "[" },
-    { source: "C", target: "G" },
-    { source: "D", target: "P" },
-    { source: "E", target: "F" },
-    { source: "F", target: "T" },
-    { source: "F", target: "\\" },
-    { source: "G", target: "H" },
-    { source: "G", target: "M" },
-    { source: "G", target: "W" },
-    { source: "H", target: "R" },
-    { source: "I", target: "Q" },
-    { source: "I", target: "V" },
-    { source: "K", target: "\\" },
-    { source: "M", target: "S" },
-    { source: "M", target: "]" },
-    { source: "O", target: "Y" },
-    { source: "P", target: "W" },
-    { source: "P", target: "X" },
-    { source: "R", target: "Y" },
-    { source: "S", target: "W" },
-    { source: "T", target: "]" },
-    { source: "V", target: "]" },
+    { source: 1, target: 17 },
+    { source: 1, target: 26 },
+    { source: 3, target: 7 },
+    { source: 4, target: 16 },
+    { source: 5, target: 6 },
+    { source: 6, target: 20 },
+    { source: 6, target: 27 },
+    { source: 7, target: 8 },
+    { source: 7, target: 13 },
+    { source: 7, target: 23 },
+    { source: 8, target: 18 },
+    { source: 9, target: 17 },
+    { source: 9, target: 22 },
+    { source: 11, target: 27 },
+    { source: 13, target: 19 },
+    { source: 13, target: 28 },
+    { source: 15, target: 25 },
+    { source: 16, target: 23 },
+    { source: 16, target: 24 },
+    { source: 18, target: 25 },
+    { source: 19, target: 23 },
+    { source: 20, target: 28 },
+    { source: 22, target: 28 },
+
+    { source: 13, target: 12 },
+    { source: 12, target: 13 },
+    { source: 13, target: 14 },
+
+    { source: 12, target: 30 },
+    { source: 30, target: 2 },
+    { source: 2, target: 10 },
+    { source: 10, target: 29 },
+    { source: 10, target: 21 },
 ];
 
 
@@ -387,7 +384,7 @@ document.getElementById("prevStep").addEventListener("click", () => {
 document.getElementById("toggleCluster").addEventListener("click", () => {
     graph.toggleClusterLabels();
     const toggleButton = document.getElementById("toggleCluster");
-    toggleButton.innerText = graph.showClusterLabels ? "Hide Clusters" : "Show Clusters";
+    toggleButton.innerText = graph.showClusterLabels ? "Hide representatives" : "Show representatives";
 });
 
 // Generate Random Graph
