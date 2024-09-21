@@ -12,23 +12,46 @@ class ForceDirectedGraph {
 
     setData(nodes, links) {
         this.nodes = nodes;
-        this.links = links;
+
+        //
+        const nodeById = new Map(nodes.map(d => [d.id, d]));
+
+
+        this.links = links.map(l => ({
+            source: nodeById.get(l.source),
+            target: nodeById.get(l.target),
+        }));
     }
 
     render() {
+
+        const clusters = [...new Set(this.nodes.map(d => d.cluster))];
+        const color = d3.scaleOrdinal(d3.schemeCategory10)
+            .domain(clusters);
+
+
         const link = this.svg.append("g")
             .selectAll("line")
             .data(this.links)
             .join("line")
-            .attr("stroke", "#999")
-            .attr("stroke-opacity", 0.6);
+            .attr("stroke", d => {
+
+                return d.source.cluster === d.target.cluster ? color(d.source.cluster) : "#ccc";
+            })
+            .attr("stroke-opacity", 0.6)
+            .attr("stroke-width", d => {
+
+                return d.source.cluster === d.target.cluster ? 2 : 1;
+            });
+
 
         const node = this.svg.append("g")
             .selectAll("circle")
             .data(this.nodes)
             .join("circle")
             .attr("r", 5)
-            .attr("fill", "#69b3a2");
+            .attr("fill", d => color(d.cluster));
+
 
         this.simulation
             .nodes(this.nodes)
@@ -44,8 +67,14 @@ class ForceDirectedGraph {
                     .attr("cy", d => d.y);
             });
 
-        this.simulation.force("link").links(this.links);
+        this.simulation.force("link")
+            .links(this.links);
+
+
+        this.simulation.alpha(1).restart();
     }
+
+
 }
 
 // Usage
