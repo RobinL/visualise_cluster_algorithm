@@ -1,3 +1,44 @@
+function solveConnectedComponents(nodes, links) {
+    // Build adjacency list
+    const adjacency = {};
+    nodes.forEach(node => {
+        adjacency[node.id] = new Set();
+    });
+    links.forEach(link => {
+        adjacency[link.source].add(link.target);
+        adjacency[link.target].add(link.source);
+    });
+
+    // Initialize clusters
+    let clusters = {}; // Changed from 'const' to 'let'
+    nodes.forEach(node => {
+        clusters[node.id] = node.id;
+    });
+
+    const nodesAtIterations = [nodes.map(node => ({ id: node.id, cluster: node.cluster }))];
+    let changes = 1;
+
+    while (changes > 0) {
+        changes = 0;
+        const newClusters = { ...clusters };
+
+        nodes.forEach(node => {
+            const neighborClusters = Array.from(adjacency[node.id]).map(neighbor => clusters[neighbor]);
+            const minCluster = [clusters[node.id], ...neighborClusters].reduce((a, b) => (a < b ? a : b));
+            if (minCluster !== clusters[node.id]) {
+                newClusters[node.id] = minCluster;
+                changes += 1;
+            }
+        });
+
+        clusters = newClusters;
+
+        nodesAtIterations.push(nodes.map(node => ({ id: node.id, cluster: clusters[node.id] })));
+    }
+
+    return nodesAtIterations;
+}
+
 class ForceDirectedGraph {
     constructor(selector) {
         this.svg = d3.select(selector).append("svg")
@@ -144,22 +185,46 @@ class ForceDirectedGraph {
 }
 
 // Usage
+// Usage
 const graph = new ForceDirectedGraph("#graph");
 
-// Load data from JSON file
-d3.json("data/graph_data.json").then(data => {
-    graph.setData(data.links);
-    graph.setIterations(data.nodes_at_iterations);
-    graph.render();
+// Hardcoded data
+const nodes = [
+    { id: "A", cluster: "A" },
+    { id: "B", cluster: "B" },
+    { id: "C", cluster: "C" },
+    { id: "D", cluster: "D" },
+    { id: "E", cluster: "E" },
+    { id: "F", cluster: "F" },
+    { id: "G", cluster: "G" },
+];
 
-    // Event listeners for the buttons
-    document.getElementById("nextStep").addEventListener("click", () => {
-        graph.nextStep();
-        document.getElementById("currentStep").innerText = graph.currentIteration + 1;
-    });
+const links = [
+    { source: "A", target: "B" },
+    { source: "B", target: "C" },
+    { source: "C", target: "A" },
+    { source: "C", target: "D" },
+    { source: "D", target: "E" },
+    { source: "E", target: "F" },
+    { source: "F", target: "G" },
+];
 
-    document.getElementById("prevStep").addEventListener("click", () => {
-        graph.prevStep();
-        document.getElementById("currentStep").innerText = graph.currentIteration + 1;
-    });
-}).catch(error => console.error("Error loading the JSON file:", error));
+// Solve connected components
+const nodesAtIterations = solveConnectedComponents(nodes, links);
+
+// Set data and iterations to graph
+debugger;
+graph.setData(links);
+graph.setIterations(nodesAtIterations);
+graph.render();
+
+// Event listeners for the buttons
+document.getElementById("nextStep").addEventListener("click", () => {
+    graph.nextStep();
+    document.getElementById("currentStep").innerText = graph.currentIteration + 1;
+});
+
+document.getElementById("prevStep").addEventListener("click", () => {
+    graph.prevStep();
+    document.getElementById("currentStep").innerText = graph.currentIteration + 1;
+});
