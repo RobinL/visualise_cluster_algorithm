@@ -10,7 +10,7 @@ function solveConnectedComponents(nodes, links) {
     });
 
     // Initialize clusters
-    let clusters = {}; // Changed from 'const' to 'let'
+    let clusters = {};
     nodes.forEach(node => {
         clusters[node.id] = node.id;
     });
@@ -50,12 +50,12 @@ class ForceDirectedGraph {
             .force("charge", d3.forceManyBody())
             .force("center", d3.forceCenter(400, 300));
 
-        this.currentIteration = 0; // Initialize current iteration
+        this.currentIteration = 0;
     }
 
     // Set the links (edges) data
     setData(links) {
-        this.linksData = links; // Store links separately
+        this.linksData = links;
     }
 
     // Set the nodes at each iteration
@@ -64,8 +64,6 @@ class ForceDirectedGraph {
     }
 
     render() {
-        // Initialize nodes from the first iteration
-        // Create a map from node IDs to node objects
         const nodeById = new Map();
         this.nodes = this.nodes_at_iterations[0].map(d => {
             const node = { id: d.id, cluster: d.cluster };
@@ -73,37 +71,48 @@ class ForceDirectedGraph {
             return node;
         });
 
-        // Replace source and target IDs with node objects
         this.links = this.linksData.map(l => ({
             source: nodeById.get(l.source),
             target: nodeById.get(l.target),
         }));
 
-        // Create a color scale for clusters
         this.updateColorScale();
 
-        // Draw and style the links (edges)
+        // Draw links
         this.link = this.svg.append("g")
             .selectAll("line")
             .data(this.links)
             .join("line")
-            .attr("stroke", d => {
-                return d.source.cluster === d.target.cluster ? this.color(d.source.cluster) : "#ccc";
-            })
+            .attr("stroke", d => d.source.cluster === d.target.cluster ? this.color(d.source.cluster) : "#ccc")
             .attr("stroke-opacity", 0.6)
-            .attr("stroke-width", d => {
-                return d.source.cluster === d.target.cluster ? 2 : 1;
-            });
+            .attr("stroke-width", d => d.source.cluster === d.target.cluster ? 2 : 1);
 
-        // Draw and style the nodes
+        // Draw nodes
         this.node = this.svg.append("g")
             .selectAll("circle")
             .data(this.nodes)
             .join("circle")
-            .attr("r", 5)
-            .attr("fill", d => this.color(d.cluster));
+            .attr("r", 7)
+            .attr("fill", d => this.color(d.cluster))
+            .call(
+                d3.drag()
+                    .on("start", this.dragstarted.bind(this))
+                    .on("drag", this.dragged.bind(this))
+                    .on("end", this.dragended.bind(this))
+            );
 
-        // Set up the simulation
+        // Draw labels
+        this.labels = this.svg.append("g")
+            .selectAll("text")
+            .data(this.nodes)
+            .join("text")
+            .text(d => `${d.id} (${d.cluster})`)
+            .attr("text-anchor", "middle")
+            .attr("dy", ".35em")
+            .attr("font-size", "10px")
+            .attr("pointer-events", "none")
+            .attr("fill", "#000");
+
         this.simulation
             .nodes(this.nodes)
             .on("tick", () => {
@@ -116,16 +125,18 @@ class ForceDirectedGraph {
                 this.node
                     .attr("cx", d => d.x)
                     .attr("cy", d => d.y);
+
+                this.labels
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y);
             });
 
         this.simulation.force("link")
             .links(this.links);
 
-        // Run the simulation and fix node positions after it settles
         this.simulation.alpha(1).restart();
 
         this.simulation.on('end', () => {
-            // Fix node positions to prevent re-layout
             this.nodes.forEach(d => {
                 d.fx = d.x;
                 d.fy = d.y;
@@ -144,27 +155,23 @@ class ForceDirectedGraph {
     updateClusters() {
         const currentNodes = this.nodes_at_iterations[this.currentIteration];
 
-        // Update cluster assignments in nodes
         this.nodes.forEach(node => {
             const currentNode = currentNodes.find(n => n.id === node.id);
             node.cluster = currentNode.cluster;
         });
 
-        // Update the color scale
         this.updateColorScale();
 
-        // Update node colors
         this.node
             .attr("fill", d => this.color(d.cluster));
 
-        // Update link styles
         this.link
-            .attr("stroke", d => {
-                return d.source.cluster === d.target.cluster ? this.color(d.source.cluster) : "#ccc";
-            })
-            .attr("stroke-width", d => {
-                return d.source.cluster === d.target.cluster ? 2 : 1;
-            });
+            .attr("stroke", d => d.source.cluster === d.target.cluster ? this.color(d.source.cluster) : "#ccc")
+            .attr("stroke-width", d => d.source.cluster === d.target.cluster ? 2 : 1);
+
+        this.labels
+            .text(d => `${d.id} (${d.cluster})`)
+            .attr("fill", "#000");
     }
 
     // Move to the next iteration
@@ -182,9 +189,26 @@ class ForceDirectedGraph {
             this.updateClusters();
         }
     }
+
+    dragstarted(event, d) {
+        if (!event.active) this.simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
+    }
+
+    dragended(event, d) {
+        if (!event.active) this.simulation.alphaTarget(0);
+        // Uncomment the lines below if you want nodes to be draggable without staying fixed
+        // d.fx = null;
+        // d.fy = null;
+    }
 }
 
-// Usage
 // Usage
 const graph = new ForceDirectedGraph("#graph");
 
@@ -205,7 +229,7 @@ const links = [
     { source: "C", target: "A" },
     { source: "C", target: "D" },
     { source: "D", target: "E" },
-    { source: "E", target: "F" },
+
     { source: "F", target: "G" },
 ];
 
